@@ -7,6 +7,7 @@ from ..utils import (
     urljoin,
 )
 
+import re
 
 class DashSegmentsFD(FragmentFD):
     """
@@ -20,6 +21,7 @@ class DashSegmentsFD(FragmentFD):
         fragments = info_dict['fragments'][:1] if self.params.get(
             'test', False) else info_dict['fragments']
 
+        params = re.search('(\?.*)', info_dict.get('manifest_url')).groups(1)[0] or ''
         ctx = {
             'filename': filename,
             'total_frags': len(fragments),
@@ -44,7 +46,7 @@ class DashSegmentsFD(FragmentFD):
                     fragment_url = fragment.get('url')
                     if not fragment_url:
                         assert fragment_base_url
-                        fragment_url = urljoin(fragment_base_url, fragment['path'])
+                        fragment_url = urljoin(fragment_base_url, fragment['path']) + (params)
                     success, frag_content = self._download_fragment(ctx, fragment_url, info_dict)
                     if not success:
                         return False
